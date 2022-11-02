@@ -1,0 +1,35 @@
+version: '3.6'
+services:
+  db: 
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: timemanager_dev
+    image: 'postgres:latest'
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - db:/var/lib/data/postgres
+      - ./db-dump:/docker-entrypoint-initdb.d
+  web:
+    build: timemanager
+    depends_on:
+      - db
+    ports:
+      - 4000:4000
+    environment:
+      MIX_ENV: dev
+    env_file:
+      - .env
+    volumes:
+    - .:/app
+  front:
+    build: front
+    ports:
+    - 8080:8080
+volumes:
+  db:
+
