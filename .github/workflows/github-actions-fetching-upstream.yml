@@ -1,16 +1,49 @@
-name: Mirroring
+# This is a basic workflow to help you get started with Actions
 
-on: [push]
+name: CI
+
+# on:
+#   push:
+#     branches: [ master, filter-files ]
+#   pull_request:
+#     branches: [ master, filter-files ]
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     container: pandoc/latex
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: Pushes to another repository
+#         id: push_directory
+#         uses: cpina/github-action-push-to-another-repository@main
+#         env:
+#           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+#           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+#         with:
+#           source-directory: ./
+#           destination-github-username: 'EpitechMscProPromo2024'
+#           destination-repository-name: 'T-POO-700-LIL_9'
+#           user-email: ousmane.konate@epitech.eu
+#           commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+#           target-branch: master
+#       - name: Test get variable exported by push-to-another-repository
+#         run: echo $DESTINATION_CLONED_DIRECTORYname: Mirror to Bitbucket Repo
+
+on: [ push, delete, create ]
+
+# Ensures that only one mirror task will run at a time.
+concurrency:
+  group: git-mirror
 
 jobs:
-  to_gitlab:
+  git-mirror:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: wearerequired/git-mirror-action@v1
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+          SSH_KNOWN_HOSTS: true
         with:
-          fetch-depth: 0
-      - uses: yesolutions/mirror-action@master
-        with:
-          REMOTE: 'ssh://git@github.com/Drogobeats/Pool-Ci.git'
-          GIT_SSH_PRIVATE_KEY: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
-          GIT_SSH_NO_VERIFY_HOST: true
+          source-repo: "git@github.com:Drogobeats/Pool-Ci.git"
+          destination-repo: "git@github.com:EpitechMscProPromo2024/T-POO-700-LIL_9.git"
